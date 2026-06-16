@@ -1,0 +1,43 @@
+{
+  "name": "podcast-generator",
+  "version": "2.0.0",
+  "description": "A modern podcast generator with Material UI design",
+  "homepage": "https://github.com/ramcharan170605/podcast-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ramcharan170605/podcast-generator.git"
+  },
+  "keywords": [
+    "podcast",
+    "generator",
+    "react",
+    "material-ui",
+    "typescript",
+    "vite"
+  ],
+  "author": "ramcharan170605",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^5.0.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/material": "^5.15.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}
