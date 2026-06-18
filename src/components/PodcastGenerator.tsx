@@ -157,7 +157,8 @@ const PodcastGenerator: React.FC = () => {
           <PodcastInput
             value={topic}
             onChange={setTopic}
-            disabled={isLoading}
+            onKeyPress={handleKeyPress}
+disabled={isLoading}
             placeholder="Enter your podcast topic..."
           />
         </Box>

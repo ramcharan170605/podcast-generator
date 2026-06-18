@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, KeyboardEvent } from 'react'
 import { TextField, InputAdornment, useTheme } from '@mui/material'
 import MicIcon from '@mui/icons-material/Mic'
 import { SxProps } from '@mui/system'
@@ -6,6 +6,7 @@ import { SxProps } from '@mui/system'
 interface PodcastInputProps {
   value: string
   onChange: (value: string) => void
+  onKeyPress?: (e: KeyboardEvent<HTMLInputElement>) => void
   disabled?: boolean
   placeholder?: string
 }
@@ -13,6 +14,7 @@ interface PodcastInputProps {
 const PodcastInput: React.FC<PodcastInputProps> = ({
   value,
   onChange,
+  onKeyPress,
   disabled = false,
   placeholder = 'Type your podcast topic here...',
 }) => {
@@ -63,6 +65,7 @@ const PodcastInput: React.FC<PodcastInputProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+      onKeyPress={onKeyPress}
       disabled={disabled}
       fullWidth
       InputProps={{
