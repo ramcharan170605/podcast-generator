@@ -1,0 +1,199 @@
+{
+  "name": "Podcast Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "69fe3e3e-2fa1-4341-900f-1c5125eb9ac5",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        -112
+      ],
+      "id": "514e1338-618a-4f22-a4e5-f325eebf88dc",
+      "name": "Webhook",
+      "webhookId": "69fe3e3e-2fa1-4341-900f-1c5125eb9ac5"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "voiceId": {
+          "__rl": true,
+          "value": "en-US-iris",
+          "mode": "list",
+          "cachedResultName": "Iris (F)"
+        },
+        "multiNativeLocale": {
+          "__rl": true,
+          "value": "en-US",
+          "mode": "list"
+        },
+        "style": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-murf.murf",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -112
+      ],
+      "id": "3e23618a-81cc-497b-b36f-e314034f3208",
+      "name": "Generate speech from text",
+      "credentials": {
+        "murfApi": {
+          "id": "h6U6ISTlSxFXPmYM",
+          "name": "Murf account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1056,
+        -112
+      ],
+      "id": "06c6603b-8992-444b-b777-a90c334cafd2",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "url": "https://murf.ai/user-upload/one-day-temp/f1c7e7fd-13d2-4ad2-9560-76c2b76f6b63.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260619T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DRLM427MO%2F20260619%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=aa79ca30003b4e04f1596c553e2a2a5bff615904f0e126f7637963c57d076a6f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        -112
+      ],
+      "id": "524128a1-d93e-41c9-bf27-3f6a59796295",
+      "name": "Podcast Downloader"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a professional podcast script writer. Write a short, conversational podcast script on the topic: {{ $json.body.text }}.\n\nRequirements:\n\n* Keep the script between 100–150 words (about 45–60 seconds when spoken).\n* Use a friendly and engaging tone.\n* Speak directly to the listener.\n* Focus on only 2–3 key points.\n* Do not use headings, labels, bullet points, speaker names, or formatting.\n* Output plain text only.\n* End with a short concluding sentence."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        256,
+        -112
+      ],
+      "id": "005927ab-8850-4f0e-b5f2-35e5c118bd8a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        336,
+        112
+      ],
+      "id": "8d37aa07-ade5-4e27-acec-e07590e8d058",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "HS2TYUsew3BHaFIj",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate speech from text": {
+      "main": [
+        [
+          {
+            "node": "Podcast Downloader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podcast Downloader": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Generate speech from text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "17fb0631-82cd-4982-a445-72a48c316ce3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dd8826bff00ff1a4685f06497f43e29209ad922e6e910a42cb64d812be5d2a5c"
+  },
+  "nodeGroups": [],
+  "id": "H4qZ6tzQSWwHAcKg",
+  "tags": []
+}
