@@ -11,20 +11,42 @@ const PodcastGenerator: React.FC = () => {
   const [topic, setTopic] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('Podcast will appear here.')
+  const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined)
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!topic.trim()) return
 
     setIsLoading(true)
     setMessage('')
+    setAudioUrl(undefined)
 
-    // Simulate processing time (2-3 seconds)
-    const delay = Math.floor(Math.random() * 1000) + 2000
+    try {
+      const response = await fetch('https://charansurebrec.qzz.io/webhook/69fe3e3e-2fa1-4341-900f-1c5125eb9ac5', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: topic }),
+      })
 
-    setTimeout(() => {
+      if (!response.ok) {
+        throw new Error('Failed to generate podcast')
+      }
+
+      const data = await response.json()
+      if (data && data.audioFile) {
+        setAudioUrl(data.audioFile)
+        setMessage('Podcast is ready! Click play to listen')
+        setTopic('')
+      } else {
+        throw new Error('Invalid response format')
+      }
+    } catch (error) {
+      console.error(error)
+      setMessage('Oops! Something went wrong. Please try again')
+    } finally {
       setIsLoading(false)
-      setMessage('Feature coming soon!')
-    }, delay)
+    }
   }
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -202,7 +224,7 @@ disabled={isLoading}
           }}
         >
           <LoadingAnimation show={isLoading} />
-          {!isLoading && <AudioPlayer message={message} />}
+          {!isLoading && <AudioPlayer message={message} audioUrl={audioUrl} />}
         </Box>
       </Box>
 

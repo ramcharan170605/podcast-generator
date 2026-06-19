@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent, useRef, useEffect } from 'react'
 import { Box, Card, CardContent, Typography, IconButton, useTheme, Divider } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -9,26 +9,70 @@ import { SxProps } from '@mui/system'
 
 interface AudioPlayerProps {
   message: string
+  audioUrl?: string
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ message }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ message, audioUrl }) => {
   const theme = useTheme()
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [volume, setVolume] = useState(100)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    setIsPlaying(false)
+    setCurrentTime(0)
+    if (audioRef.current) {
+      audioRef.current.load()
+    }
+  }, [audioUrl])
 
   const togglePlayPause = () => {
+    if (!audioRef.current) return
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play().catch(err => console.error("Error playing audio:", err))
+    }
     setIsPlaying(!isPlaying)
   }
 
   const toggleMute = () => {
-    setIsMuted(!isMuted)
+    if (!audioRef.current) return
+    const newMuted = !isMuted
+    audioRef.current.muted = newMuted
+    setIsMuted(newMuted)
   }
 
   const handleVolumeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!audioRef.current) return
     const newVolume = parseInt(event.target.value)
     setVolume(newVolume)
-    if (newVolume > 0) setIsMuted(false)
+    audioRef.current.volume = newVolume / 100
+    if (newVolume > 0) {
+      audioRef.current.muted = false
+      setIsMuted(false)
+    }
+  }
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime)
+    }
+  }
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration)
+    }
+  }
+
+  const handleEnded = () => {
+    setIsPlaying(false)
+    setCurrentTime(0)
   }
 
   // Card styling
@@ -45,9 +89,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ message }) => {
     },
   }
 
-  const isInfoMessage = message === 'Podcast will appear here.' ||
-                       message === 'Feature coming soon!' ||
-                       !message.includes('http')
+  const isInfoMessage = !audioUrl
 
   return (
     <Card sx={cardSx} elevation={0}>
@@ -193,7 +235,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ message }) => {
                     top: 0,
                     left: 0,
                     height: '100%',
-                    width: isPlaying ? '75%' : '30%',
+                    width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
                     background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
                     borderRadius: 2,
                     transition: 'width 0.3s ease',
@@ -241,6 +283,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ message }) => {
                 }}
               />
             </Box>
+            {audioUrl && (
+              <audio
+                ref={audioRef}
+                src={audioUrl}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleEnded}
+              />
+            )}
           </Box>
         )}
       </CardContent>

@@ -75,7 +75,7 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ show }) => {
             },
           }}
         >
-          Creating your podcast...
+          Creating podcast... please wait!
         </Typography>
 
         {/* Subtitle with more detail */}
