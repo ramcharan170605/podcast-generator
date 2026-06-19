@@ -4,7 +4,9 @@
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org/)
 [![Material-UI](https://img.shields.io/badge/Material--UI-5.15.0-00695C.svg)](https://mui.com/)
 
-A **modern, professional podcast generator** application built with React, Material UI, and Vite. Generate AI-powered podcasts using a beautiful user interface integrated with a live generation backend.
+A **modern, professional podcast generator** frontend application built with React, Material UI, and Vite, deployed on Vercel. 
+
+Unlike traditional architectures, this LLM-based application requires **zero direct backend API configurations** or server hosting in the repository. Instead, all business logic, LLM prompting, and media generation are orchestrated through a serverless **n8n workflow automation engine**. The frontend interacts directly with n8n webhook nodes, which handle the API keys (such as OpenAI, Anthropic, or Text-to-Speech services like the **Murf API** key) on the backend. This decoupling allows users to easily swap or configure any LLM provider or TTS engine within the n8n canvas without changing any code or exposing private credentials in the frontend.
 
 ---
 
