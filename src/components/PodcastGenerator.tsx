@@ -6,6 +6,12 @@ import GenerateButton from './GenerateButton'
 import LoadingAnimation from './LoadingAnimation'
 import AudioPlayer from './AudioPlayer'
 
+const WEBHOOK_URL = 'https://charansurebrec.qzz.io/webhook/69fe3e3e-2fa1-4341-900f-1c5125eb9ac5'
+
+type PodcastWebhookResponse = {
+  audioFile?: unknown
+}
+
 const PodcastGenerator: React.FC = () => {
   const theme = useTheme()
   const [topic, setTopic] = useState('')
@@ -21,29 +27,64 @@ const PodcastGenerator: React.FC = () => {
     setAudioUrl(undefined)
 
     try {
-      const response = await fetch('https://charansurebrec.qzz.io/webhook/69fe3e3e-2fa1-4341-900f-1c5125eb9ac5', {
+      const payload = { text: topic.trim() }
+
+      console.info('[PodcastGenerator] Sending webhook request', {
+        url: WEBHOOK_URL,
+        payload,
+      })
+
+      const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: topic }),
+        body: JSON.stringify(payload),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to generate podcast')
+      const responseText = await response.text()
+      const responseDetails = {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        body: responseText,
       }
 
-      const data = await response.json()
-      if (data && data.audioFile) {
+      if (!response.ok) {
+        console.error('[PodcastGenerator] Webhook request failed', responseDetails)
+        throw new Error(
+          `Webhook request failed (${response.status} ${response.statusText || 'Unknown status'})`
+        )
+      }
+
+      console.info('[PodcastGenerator] Webhook response received', responseDetails)
+
+      if (!responseText.trim()) {
+        throw new Error('Webhook returned an empty response. Configure n8n to return JSON with an audioFile URL.')
+      }
+
+      let data: PodcastWebhookResponse
+      try {
+        data = JSON.parse(responseText) as PodcastWebhookResponse
+      } catch (parseError) {
+        console.error('[PodcastGenerator] Webhook returned non-JSON response', {
+          ...responseDetails,
+          parseError,
+        })
+        throw new Error('Webhook returned an invalid JSON response.')
+      }
+
+      if (typeof data.audioFile === 'string' && data.audioFile.trim()) {
         setAudioUrl(data.audioFile)
         setMessage('Podcast is ready! Click play to listen')
         setTopic('')
       } else {
-        throw new Error('Invalid response format')
+        console.error('[PodcastGenerator] Webhook response missing audioFile', data)
+        throw new Error('Webhook response is missing an audioFile URL.')
       }
     } catch (error) {
-      console.error(error)
-      setMessage('Oops! Something went wrong. Please try again')
+      console.error('[PodcastGenerator] Podcast generation failed', error)
+      setMessage(error instanceof Error ? error.message : 'Oops! Something went wrong. Please try again')
     } finally {
       setIsLoading(false)
     }
