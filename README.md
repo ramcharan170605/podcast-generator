@@ -1,6 +1,5 @@
 # 🎙️ Podcast Generator
 
-[![Vercel](https://therealsujitk-vercel-badge.vercel.app/?app=podcast-generator&style=for-the-badge&logo=vercel&logoColor=white)](https://podcast-generator.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org/)
 [![Material-UI](https://img.shields.io/badge/Material--UI-5.15.0-00695C.svg)](https://mui.com/)
@@ -158,4 +157,4 @@ podcast-generator/
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-*Made with ❤️, React, and Material UI*
+*Made with React and Material UI with workflow orchestration through n8n*
